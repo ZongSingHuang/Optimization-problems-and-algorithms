@@ -1,2 +1,4 @@
 # Optimization-problems-and-algorithms
-Optimization problems and algorithms
+Python version
+
+https://www.udemy.com/course/optimisation/
