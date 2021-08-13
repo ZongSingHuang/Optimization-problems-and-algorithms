@@ -41,9 +41,9 @@ Lesson 18:強健型PSO1
 
 Lesson 19:強健型PSO2
 
-Lesson 33:還沒看
+Lesson 33:利用np.round()實現整數求解
 
-Lesson 34:還沒看
+Lesson 34:粒子包含連續值和二進值，也就是整合Lesson 08, 13
 
 Lesson 35:還沒看
 
