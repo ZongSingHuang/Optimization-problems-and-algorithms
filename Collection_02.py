@@ -27,12 +27,15 @@ w_max = 0.9
 w_min = 0.2
 c1 = 2
 c2 = 2
-ub = 50*np.ones(D)
-lb = -50*np.ones(D)
+ub = 50*np.ones([P, D])
+lb = -50*np.ones([P,D])
+k = 0.2
 
 #%% 初始化
 X = np.random.uniform(low=lb, high=ub, size=[P, D])
 V = np.zeros([P, D])
+v_max = k*(ub-lb)*np.ones([P, D])
+v_min = -1*v_max
 pbest_X = np.zeros([P, D])
 pbest_F = np.ones(P)*np.inf
 gbest_X = np.zeros(D)
@@ -70,9 +73,18 @@ for g in range(G):
     r1 = np.random.uniform(size=[P, D])
     r2 = np.random.uniform(size=[P, D])
     V = w*V + c1*r1*(pbest_X-X) + c2*r2*(gbest_X-X)
+    # 邊界處理
+    mask1 = V>v_max
+    mask2 = V<v_min
+    V[mask1] = v_max[mask1]
+    V[mask2] = v_min[mask2]
     
     # 更新X
     X = X + V
+    mask1 = X>ub
+    mask2 = X<lb
+    X[mask1] = ub[mask1]
+    X[mask2] = lb[mask2]
     
 #%% 作圖
 plt.figure()

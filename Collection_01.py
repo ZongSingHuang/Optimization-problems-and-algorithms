@@ -85,6 +85,7 @@ for t in range(T):
             
             # 更新X
             X[p] = X[p] + V[p]
+            # 邊界處理
             mask1 = X[p]>ub
             mask2 = X[p]<lb
             X[p, mask1] = ub[mask1]

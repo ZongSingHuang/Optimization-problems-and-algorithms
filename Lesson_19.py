@@ -113,6 +113,7 @@ for g in range(G):
     
     # 更新X
     X = X + V
+    # 邊界處理
     mask1 = X>ub
     mask2 = X<lb
     X[mask1] = ub[mask1]

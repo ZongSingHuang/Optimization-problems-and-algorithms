@@ -5,7 +5,8 @@ Created on Wed Aug 11 17:09:03 2021
 @author: zongsing.huang
 """
 # =============================================================================
-# 加入限制式，違反一項就+200
+# 最佳解為2500
+# 題目X[4]和X[9]須為整數，故採用np.round進行修正
 # =============================================================================
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,27 +16,21 @@ def fitness(X):
     if X.ndim==1:
         X = X.reshape(1, -1)
     
-    const1 = np.logical_or((X[:, 1]<=3.2), (X[:, 1]>=6.4))
-    const2 = (X[:, 0]**2 + X[:, 1]**2) >= 1
-    const3 = X[:, 0] != X[:, 1]
-    const1 = np.logical_not(const1)
-    const2 = np.logical_not(const2)
-    const3 = np.logical_not(const3)
-    F = np.sum(X**2, axis=1) + 200*(const1+const2+const3)
+    F = np.sum(X**2, axis=1)
     
     return F
 
 #%% 參數設定
 P = 300
-D = 2
+D = 10
 G = 500
 k = 0.2
 w_max = 0.9
 w_min = 0.2
 c1 = 2
 c2 = 2
-ub = 10*np.ones([P, D])
-lb = -10*np.ones([P, D])
+ub = [10, 10, 10, 10, -50, 10, 10, 10, 10, 20]*np.ones([P, D])
+lb = [-10, -10, -10, -10, -1000, -10, -10, -10, -10, -20]*np.ones([P, D])
 
 #%% 初始化
 X = np.random.uniform(low=lb, high=ub, size=[P, D])
@@ -50,6 +45,10 @@ loss_curve = np.zeros(G)
 
 #%% 迭代
 for g in range(G):
+    # 修正X
+    X[:, 4] = np.round(X[:, 4])
+    X[:, -1] = np.round(X[:, -1])
+    
     # 適應值計算
     F = fitness(X)
     

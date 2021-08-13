@@ -5,40 +5,53 @@ Created on Wed Aug 11 17:09:03 2021
 @author: zongsing.huang
 """
 # =============================================================================
-# 加入限制式，違反一項就+200
+# 最佳解為ˊˋㄢ
+# X[0]-X[8]的範圍在[-10, 10]，故X[0]-X[8]採用一般的PSO進行計算
+# X[9]、X[10]可以轉換為{10000, 1000, 100, 80}，故X[9]、X[10]採用離散PSO進行計算
+# Lesson 08 + Lesson 14
 # =============================================================================
 import numpy as np
 import matplotlib.pyplot as plt
 
 def fitness(X):
+    table = np.array([10000, 1000, 100, 80])
+    
     # Sphere
     if X.ndim==1:
         X = X.reshape(1, -1)
     
-    const1 = np.logical_or((X[:, 1]<=3.2), (X[:, 1]>=6.4))
-    const2 = (X[:, 0]**2 + X[:, 1]**2) >= 1
-    const3 = X[:, 0] != X[:, 1]
-    const1 = np.logical_not(const1)
-    const2 = np.logical_not(const2)
-    const3 = np.logical_not(const3)
-    F = np.sum(X**2, axis=1) + 200*(const1+const2+const3)
+    decoded_X = np.packbits(X[:, -2:].astype(int), bitorder='little', axis=1).reshape(P, -1)
+    decoded_X = table[decoded_X]
+    new_X = np.hstack([ X[:, :9], decoded_X ])
+    
+    F = np.sum(new_X**2, axis=1)
     
     return F
 
+def transfer(V):
+    # S-shaped (sigmoid)
+    if V.ndim==1:
+        V = V.reshape(1, -1)
+    
+    S = 1 / ( 1+np.exp(-V) )
+    
+    return S
+
 #%% 參數設定
 P = 300
-D = 2
+D = 11
 G = 500
 k = 0.2
 w_max = 0.9
 w_min = 0.2
 c1 = 2
 c2 = 2
-ub = 10*np.ones([P, D])
-lb = -10*np.ones([P, D])
+ub = [10, 10, 10, 10, 10, 10, 10, 10, 10, 1, 1]*np.ones([P, D])
+lb = [-10, -10, -10, -10, -10, -10, -10, -10, -10, 0, 0]*np.ones([P, D])
 
 #%% 初始化
 X = np.random.uniform(low=lb, high=ub, size=[P, D])
+X[:, -2:] = np.random.choice(2, size=[P, 2])
 V = np.zeros([P, D])
 v_max = k*(ub-lb)*np.ones([P, D])
 v_min = -1*v_max
@@ -78,8 +91,12 @@ for g in range(G):
     V[mask1] = v_max[mask1]
     V[mask2] = v_min[mask2]
     
-    # 更新X
-    X = X + V
+    # 更新X[0]-X[8]
+    X[:, :-2] = X[:, :-2] + V[:, :-2]
+    # 更新X[9]-X[10]
+    S = transfer(V[:, -2:])
+    r3 = np.random.uniform(size=[P, 2])
+    X[:, -2:] = 1.0*(S>r3)
     # 邊界處理
     mask1 = X>ub
     mask2 = X<lb
